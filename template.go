@@ -41,6 +41,9 @@ var (
     }
 )
 
+// Parse{{$typename}} returns a {{$typename}} given it's string 
+// representation, or an error if s is not a valid value of 
+// {{$typename}}.
 func Parse{{$typename}}(s string) ({{$typename}}, error) {
     v, ok := _{{$typename}}NameToValue[s]
     if ok {
