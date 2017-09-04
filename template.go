@@ -24,7 +24,7 @@ package {{.PackageName}}
 
 import (
     "encoding/json"
-    "errors"
+    "fmt"
 )
 
 {{range $typename, $values := .TypesAndValues}}
@@ -47,7 +47,7 @@ func Parse{{$typename}}(s string) ({{$typename}}, error) {
         return v, nil
     }
     var zeroValue {{$typename}}
-    return zeroValue, fmt.Errorf("invalid {{$typename}}: %d", r)
+    return zeroValue, fmt.Errorf("invalid {{$typename}}: %d", s)
 }
 
 // String is generated so {{$typename}} satisfies fmt.Stringer.
@@ -57,6 +57,26 @@ func (r {{$typename}}) String() string {
         return s
     }
     return fmt.Sprintf("{{$typename}}(%d)", r)
+}
+
+
+// MarshalText is generated so {{$typename}} satisfies encoding.TextMarshaler.
+func (r {{$typename}}) MarshalText() ([]byte, error) {
+    s, ok := _{{$typename}}ValueToName[r]
+    if !ok {
+        return nil, fmt.Errorf("invalid {{$typename}}: %d", r)
+    }
+    return []byte(s), nil
+}
+
+// UnmarshalText is generated so {{$typename}} satisfies encoding.TextUnmarshaler.
+func (r *{{$typename}}) UnmarshalText(data []byte) error {
+    v, ok := _{{$typename}}NameToValue[string(data)]
+    if !ok {
+        return fmt.Errorf("invalid {{$typename}} %q", string(data))
+    }
+    *r = v
+    return nil
 }
 
 // MarshalJSON is generated so {{$typename}} satisfies json.Marshaler.

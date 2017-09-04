@@ -29,25 +29,45 @@ var (
 	}
 )
 
-func init() {
-	var v WeekDay
-	if _, ok := interface{}(v).(fmt.Stringer); ok {
-		_WeekDayNameToValue = map[string]WeekDay{
-			interface{}(Monday).(fmt.Stringer).String():    Monday,
-			interface{}(Tuesday).(fmt.Stringer).String():   Tuesday,
-			interface{}(Wednesday).(fmt.Stringer).String(): Wednesday,
-			interface{}(Thursday).(fmt.Stringer).String():  Thursday,
-			interface{}(Friday).(fmt.Stringer).String():    Friday,
-			interface{}(Saturday).(fmt.Stringer).String():  Saturday,
-			interface{}(Sunday).(fmt.Stringer).String():    Sunday,
-		}
+func ParseWeekDay(s string) (WeekDay, error) {
+	v, ok := _WeekDayNameToValue[s]
+	if ok {
+		return v, nil
 	}
+	var zeroValue WeekDay
+	return zeroValue, fmt.Errorf("invalid WeekDay: %d", s)
 }
 
-func (r WeekDay) MarshalJSON() ([]byte, error) {
-	if s, ok := interface{}(r).(fmt.Stringer); ok {
-		return json.Marshal(s.String())
+// String is generated so WeekDay satisfies fmt.Stringer.
+func (r WeekDay) String() string {
+	s, ok := _WeekDayValueToName[r]
+	if ok {
+		return s
 	}
+	return fmt.Sprintf("WeekDay(%d)", r)
+}
+
+// MarshalText is generated so WeekDay satisfies encoding.TextMarshaler.
+func (r WeekDay) MarshalText() ([]byte, error) {
+	s, ok := _WeekDayValueToName[r]
+	if !ok {
+		return nil, fmt.Errorf("invalid WeekDay: %d", r)
+	}
+	return []byte(s), nil
+}
+
+// UnmarshalText is generated so WeekDay satisfies encoding.TextUnmarshaler.
+func (r *WeekDay) UnmarshalText(data []byte) error {
+	v, ok := _WeekDayNameToValue[string(data)]
+	if !ok {
+		return fmt.Errorf("invalid WeekDay %q", string(data))
+	}
+	*r = v
+	return nil
+}
+
+// MarshalJSON is generated so WeekDay satisfies json.Marshaler.
+func (r WeekDay) MarshalJSON() ([]byte, error) {
 	s, ok := _WeekDayValueToName[r]
 	if !ok {
 		return nil, fmt.Errorf("invalid WeekDay: %d", r)
@@ -55,6 +75,7 @@ func (r WeekDay) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s)
 }
 
+// UnmarshalJSON is generated so WeekDay satisfies json.Unmarshaler.
 func (r *WeekDay) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {

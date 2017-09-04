@@ -27,24 +27,45 @@ var (
 	}
 )
 
-func init() {
-	var v ShirtSize
-	if _, ok := interface{}(v).(fmt.Stringer); ok {
-		_ShirtSizeNameToValue = map[string]ShirtSize{
-			interface{}(NA).(fmt.Stringer).String(): NA,
-			interface{}(XS).(fmt.Stringer).String(): XS,
-			interface{}(S).(fmt.Stringer).String():  S,
-			interface{}(M).(fmt.Stringer).String():  M,
-			interface{}(L).(fmt.Stringer).String():  L,
-			interface{}(XL).(fmt.Stringer).String(): XL,
-		}
+func ParseShirtSize(s string) (ShirtSize, error) {
+	v, ok := _ShirtSizeNameToValue[s]
+	if ok {
+		return v, nil
 	}
+	var zeroValue ShirtSize
+	return zeroValue, fmt.Errorf("invalid ShirtSize: %d", s)
 }
 
-func (r ShirtSize) MarshalJSON() ([]byte, error) {
-	if s, ok := interface{}(r).(fmt.Stringer); ok {
-		return json.Marshal(s.String())
+// String is generated so ShirtSize satisfies fmt.Stringer.
+func (r ShirtSize) String() string {
+	s, ok := _ShirtSizeValueToName[r]
+	if ok {
+		return s
 	}
+	return fmt.Sprintf("ShirtSize(%d)", r)
+}
+
+// MarshalText is generated so ShirtSize satisfies encoding.TextMarshaler.
+func (r ShirtSize) MarshalText() ([]byte, error) {
+	s, ok := _ShirtSizeValueToName[r]
+	if !ok {
+		return nil, fmt.Errorf("invalid ShirtSize: %d", r)
+	}
+	return []byte(s), nil
+}
+
+// UnmarshalText is generated so ShirtSize satisfies encoding.TextUnmarshaler.
+func (r *ShirtSize) UnmarshalText(data []byte) error {
+	v, ok := _ShirtSizeNameToValue[string(data)]
+	if !ok {
+		return fmt.Errorf("invalid ShirtSize %q", string(data))
+	}
+	*r = v
+	return nil
+}
+
+// MarshalJSON is generated so ShirtSize satisfies json.Marshaler.
+func (r ShirtSize) MarshalJSON() ([]byte, error) {
 	s, ok := _ShirtSizeValueToName[r]
 	if !ok {
 		return nil, fmt.Errorf("invalid ShirtSize: %d", r)
@@ -52,6 +73,7 @@ func (r ShirtSize) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s)
 }
 
+// UnmarshalJSON is generated so ShirtSize satisfies json.Unmarshaler.
 func (r *ShirtSize) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {
