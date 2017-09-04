@@ -24,7 +24,7 @@ package {{.PackageName}}
 
 import (
     "encoding/json"
-    "fmt"
+    "errors"
 )
 
 {{range $typename, $values := .TypesAndValues}}
@@ -41,21 +41,26 @@ var (
     }
 )
 
-func init() {
-    var v {{$typename}}
-    if _, ok := interface{}(v).(fmt.Stringer); ok {
-        _{{$typename}}NameToValue = map[string]{{$typename}} {
-            {{range $values}}interface{}({{.}}).(fmt.Stringer).String(): {{.}},
-            {{end}}
-        }
+func Parse{{$typename}}(s string) ({{$typename}}, error) {
+    v, ok := _{{$typename}}NameToValue[s]
+    if ok {
+        return v, nil
     }
+    var zeroValue {{$typename}}
+    return zeroValue, fmt.Errorf("invalid {{$typename}}: %d", r)
+}
+
+// String is generated so {{$typename}} satisfies fmt.Stringer.
+func (r {{$typename}}) String() string {
+    s, ok := _{{$typename}}ValueToName[r]
+    if ok {
+        return s
+    }
+    return fmt.Sprintf("{{$typename}}(%d)", r)
 }
 
 // MarshalJSON is generated so {{$typename}} satisfies json.Marshaler.
 func (r {{$typename}}) MarshalJSON() ([]byte, error) {
-    if s, ok := interface{}(r).(fmt.Stringer); ok {
-        return json.Marshal(s.String())
-    }
     s, ok := _{{$typename}}ValueToName[r]
     if !ok {
         return nil, fmt.Errorf("invalid {{$typename}}: %d", r)
