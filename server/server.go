@@ -30,7 +30,7 @@ import (
 
 	"go/format"
 
-	"github.com/campoy/jsonenums/parser"
+	"github.com/crewjam/jsonenums/parser"
 )
 
 func init() {
