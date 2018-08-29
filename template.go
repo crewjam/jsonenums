@@ -50,7 +50,7 @@ func Parse{{$typename}}(s string) ({{$typename}}, error) {
         return v, nil
     }
     var zeroValue {{$typename}}
-    return zeroValue, fmt.Errorf("invalid {{$typename}}: %d", s)
+    return zeroValue, fmt.Errorf("invalid {{$typename}}: %s", s)
 }
 
 // String is generated so {{$typename}} satisfies fmt.Stringer.
